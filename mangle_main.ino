@@ -18,11 +18,11 @@ const int encoder_hydration_DT_pin = 4;
 const int encoder_roller_DT_pin = 8;
 
 //encoder pins state
-uint8_t currentState_hydration_CLK;
-uint8_t lastState_hydration_CLK;
+volatile uint8_t currentState_hydration_CLK;
+volatile uint8_t lastState_hydration_CLK;
 
-uint8_t currentState_roller_CLK;
-uint8_t lastState_roller_CLK;
+volatile uint8_t currentState_roller_CLK;
+volatile uint8_t lastState_roller_CLK;
 
 //payload
 uint8_t payload = 0b00000000;
@@ -55,6 +55,7 @@ void readEncoderHydration(){
       ++counter_hydration;
     }
   }
+  lastState_hydration_CLK = currentState_hydration_CLK;
 }
 
 //ISR for extraction encoder
@@ -73,6 +74,7 @@ void readEncoderRoller(){
     }
 
   }
+  lastState_roller_CLK = currentState_roller_CLK;
 }
 
 void setup() {
