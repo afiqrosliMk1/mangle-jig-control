@@ -33,8 +33,8 @@ uint8_t payload = 0b00000000;
 #define EXTRACTION_MASK 0b00110000
 
 //variables for controlling speed
-int current_roller_speed = 100;
-int current_hydration_speed = 50;
+int current_roller_speed = 150;
+int current_hydration_speed = 150;
 
 //variable for encoder ISR
 volatile int counter_roller = 0;
