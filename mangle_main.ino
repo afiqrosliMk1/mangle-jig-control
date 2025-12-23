@@ -40,6 +40,9 @@ int current_hydration_speed = 50;
 volatile int counter_roller = 0;
 volatile int counter_hydration = 0;
 
+//variable for timer ISR
+volatile bool hydrationOn = false;
+
 //ISR for hydration encoder
 void readEncoderHydration(){
   //read current state of CLK
@@ -77,7 +80,33 @@ void readEncoderRoller(){
   lastState_roller_CLK = currentState_roller_CLK;
 }
 
+ISR(TIMER1_COMPA_vect){
+  if (hydrationOn){
+    //if hydration motor is ON, now turn OFF. Advance the COMPA register; next interval is 1s
+    OCR1A += 62499;
+  }else{
+    //if hydration motor is OFF, now turn ON. Advance the COMPA register; next interval is 2s
+    OCR1A += 2 * 62499;
+  }
+
+  hydrationOn = !hydrationOn; 
+}
+
 void setup() {
+  //disable all global interrupt
+  cli();
+  //initialise timer1
+  TCCR1A = 0;
+  TCCR1B = 0;
+  //set prescaler to 256
+  TCCR1B |= (1 << CS12 );
+  //first interval is 1s
+  OCR1A = 62499;
+  //enable compare match A interrupt
+  TIMSK1 |= (1 << OCIE1A); 
+  //enable global interrupt
+  sei();
+
   pinMode(hydration_enable_pin, OUTPUT);
   pinMode(extraction_enable_pin, OUTPUT);
   pinMode(roller_enable_pin, OUTPUT);
@@ -92,6 +121,7 @@ void setup() {
   lastState_hydration_CLK = digitalRead(encoder_hydration_CLK_pin);
   lastState_roller_CLK = digitalRead(encoder_roller_CLK_pin);
 
+  //setup hardware interrupt pin and ISR to call
   attachInterrupt(digitalPinToInterrupt(encoder_hydration_CLK_pin), readEncoderHydration, CHANGE);
   attachInterrupt(digitalPinToInterrupt(encoder_roller_CLK_pin), readEncoderRoller, CHANGE);
 
@@ -150,7 +180,12 @@ void startHydration(){
   payload |= 0b00001000;
 
   //
-  analogWrite(hydration_enable_pin, current_hydration_speed);
+  if (hydrationOn){
+    analogWrite(hydration_enable_pin, current_hydration_speed);
+  }else{
+    analogWrite(hydration_enable_pin, 0);
+  }
+  
 
 }
 
