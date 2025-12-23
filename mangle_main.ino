@@ -3,7 +3,7 @@
 //h-bridge pwm pins
 const int roller_enable_pin = 5;
 const int hydration_enable_pin = 6;
-const int extraction_enable_pin = 9; //BECAUSE TIMER 1 FREQUENCY HAS BEEN RECONFIGURED. PIN 9 AND 10 PWM NO LONGER WORKING PROPERLY. ASSIGN ANOTHER PIN FOR EXTRACTION.
+const int extraction_enable_pin = 9; //BECAUSE TIMER 1 FREQUENCY HAS BEEN RECONFIGURED. PIN 9 AND 10 PWM NO LONGER WORKING PROPERLY. ASSIGN ANOTHER PIN FOR EXTRACTION or use digitalwrite for pin 9.
 
 //shift register pin
 const int dataPin = 18;
@@ -199,7 +199,9 @@ void startExtraction(){
   payload |= 0b00100000;
 
   //make the extraction pump run at fixed 80% speed
-  analogWrite(extraction_enable_pin, 204);
+  //analogWrite(extraction_enable_pin, 204);
+  //because we use timer 1 register and reconfigure the frequency, pwm on pin 9 no longer working. hence, use digitalWrite instead.
+  digitalWrite(extraction_enable_pin, HIGH);
 
 }
 
