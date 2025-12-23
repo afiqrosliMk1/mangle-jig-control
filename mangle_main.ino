@@ -3,7 +3,7 @@
 //h-bridge pwm pins
 const int roller_enable_pin = 5;
 const int hydration_enable_pin = 6;
-const int extraction_enable_pin = 9;
+const int extraction_enable_pin = 9; //BECAUSE TIMER 1 FREQUENCY HAS BEEN RECONFIGURED. PIN 9 AND 10 PWM NO LONGER WORKING PROPERLY. ASSIGN ANOTHER PIN FOR EXTRACTION.
 
 //shift register pin
 const int dataPin = 18;
@@ -33,8 +33,8 @@ uint8_t payload = 0b00000000;
 #define EXTRACTION_MASK 0b00110000
 
 //variables for controlling speed
-int current_roller_speed = 100;
-int current_hydration_speed = 50;
+int current_roller_speed = 150;
+int current_hydration_speed = 150;
 
 //variable for encoder ISR
 volatile int counter_roller = 0;
@@ -156,7 +156,9 @@ void loop() {
   Serial.print("roller pwm: ");
   Serial.print(current_roller_speed);
   Serial.print("\thydration pwm: ");
-  Serial.println(current_hydration_speed);
+  Serial.print(current_hydration_speed);
+  Serial.print("hydration state: ");
+  Serial.println(hydrationOn);
   
 }
 
@@ -213,8 +215,13 @@ void updateHydrationSpeed(int delta){
   current_hydration_speed += delta;
   //clamp speed between 0-255
   current_hydration_speed = max(0, min(255, current_hydration_speed));
-  analogWrite(hydration_enable_pin, current_hydration_speed);
+  if (hydrationOn){
+    analogWrite(hydration_enable_pin, current_hydration_speed);
+  }else{
+    analogWrite(hydration_enable_pin, 0);
+  }
 }
+  
 
 void updateShiftRegister(){
   //set latch pin low before shifting for smooth update
