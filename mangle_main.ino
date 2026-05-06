@@ -33,15 +33,16 @@ uint8_t payload = 0b00000000;
 #define EXTRACTION_MASK 0b00110000
 
 //variables for controlling speed
-int current_roller_speed = 150;
-int current_hydration_speed = 150;
+int current_roller_speed = 255;
+int current_hydration_speed = 255;
 
 //variable for encoder ISR
 volatile int counter_roller = 0;
 volatile int counter_hydration = 0;
 
 //variable for timer ISR
-volatile bool hydrationOn = false;
+//volatile bool hydrationOn = false;
+volatile bool hydrationOn = true;
 
 //ISR for hydration encoder
 void readEncoderHydration(){
@@ -89,7 +90,7 @@ ISR(TIMER1_COMPA_vect){
     OCR1A += 2 * 62499;
   }
 
-  hydrationOn = !hydrationOn; 
+  //hydrationOn = !hydrationOn; 
 }
 
 void setup() {
